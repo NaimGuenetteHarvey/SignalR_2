@@ -34,18 +34,34 @@ export default function ChatComponent({ hubConnection }: ChatComponentProps) {
       setMessages(prev => [...prev, msg]);
     });
 
-    // TODO: Écouter le message pour mettre à jour la liste de channels
-    hubConnection.on('ChannelList', (channels: Channel[]) => {
-      setChannelsList(channels);
-    })
+    // Écouter le message pour mettre à jour la liste de channels
+    hubConnection.on('ChannelsList', (data) => {
+      setChannelsList(data);
+    });
 
-    // TODO: Écouter le message pour quitter un channel (lorsque le channel est effacé)
+    // Écouter le message pour quitter un channel (lorsque le channel est effacé)
+    hubConnection.on('LeaveChannel', (message) => {
+      setSelectedChannel(null);
+    });
+
+    // Tous les handlers sont enregistrés : on peut maintenant démarrer la connexion.
+    if (hubConnection.state === HubConnectionState.Disconnected) {
+      hubConnection
+        .start()
+        .then(() => {
+          console.log("Connecté au Hub");
+          onConnected?.();
+        })
+        .catch(err => console.log('Error while starting connection: ' + err));
+    }
 
     return () => {
       hubConnection.off('UsersList');
       hubConnection.off('NewMessage');
+      hubConnection.off('ChannelsList');
+      hubConnection.off('LeaveChannel');
     };
-  }, [hubConnection]);
+  }, [hubConnection, onConnected]);
 
   function joinChannel(channel: Channel) {
     if (!hubConnection) return;
@@ -60,7 +76,7 @@ export default function ChatComponent({ hubConnection }: ChatComponentProps) {
     if (!hubConnection || !message.trim()) return;
 
     const selectedChannelId = selectedChannel ? selectedChannel.id : 0;
-    hubConnection.invoke('SendMessage', message, selectedChannelId, selectedUser?.value);
+    hubConnection.invoke('SendMessage', message, selectedChannelId, selectedUser?.value.userId);
     setMessage('');
   }
 
@@ -75,11 +91,13 @@ export default function ChatComponent({ hubConnection }: ChatComponentProps) {
   function createChannel(e: React.FormEvent) {
     e.preventDefault();
     // TODO: Ajouter un invoke pour créer un canal
+    hubConnection!.invoke('CreateChannel', newChannelName);
     setNewChannelName('');
   }
 
   function deleteChannel(channel: Channel) {
     // TODO: Ajouter un invoke pour supprimer un canal
+    hubConnection!.invoke('DeleteChannel', channel.id);
   }
 
   function leaveChannel() {
@@ -89,7 +107,6 @@ export default function ChatComponent({ hubConnection }: ChatComponentProps) {
     setSelectedChannel(null);
     setMessages([]);
   }
-
   return (
     <div className={styles.container}>
       <div className={styles.content}>
