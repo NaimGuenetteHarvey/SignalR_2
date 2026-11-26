@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { HubConnection } from '@microsoft/signalr'
 import { UserEntry, Channel } from '@/lib/models'
 import styles from './chat.module.css'
+import { ChartNetwork } from 'lucide-react'
 
 interface ChatComponentProps {
   hubConnection: HubConnection | null;
@@ -35,8 +36,15 @@ export default function ChatComponent({ hubConnection }: ChatComponentProps) {
     });
 
     // TODO: Écouter le message pour mettre à jour la liste de channels
+    hubConnection.on('ChannelList', (data: Channel[]) => {
+      setChannelsList(prev => [...prev])
 
+    })
     // TODO: Écouter le message pour quitter un channel (lorsque le channel est effacé)
+    hubConnection.on('LeaveChannel', () =>{
+         setSelectedChannel(null);
+         setMessages([]);
+    })
 
     return () => {
       hubConnection.off('UsersList');
@@ -72,11 +80,13 @@ export default function ChatComponent({ hubConnection }: ChatComponentProps) {
   function createChannel(e: React.FormEvent) {
     e.preventDefault();
     // TODO: Ajouter un invoke pour créer un canal
+    hubConnection?.invoke('CreateChannel',newChannelName)
     setNewChannelName('');
   }
 
   function deleteChannel(channel: Channel) {
     // TODO: Ajouter un invoke pour supprimer un canal
+     hubConnection?.invoke('DeleteChannel',channel.id)
   }
 
   function leaveChannel() {
