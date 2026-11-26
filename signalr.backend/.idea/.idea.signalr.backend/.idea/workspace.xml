@@ -9,6 +9,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c4ffe65b-7e0c-4687-bfcb-b612eb8f9af9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.signalr.backend/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.signalr.backend/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/signalr.backend/Hubs/ChatHub.cs" beforeDir="false" afterPath="$PROJECT_DIR$/signalr.backend/Hubs/ChatHub.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

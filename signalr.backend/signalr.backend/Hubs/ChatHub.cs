@@ -61,7 +61,7 @@ namespace signalr.backend.Hubs
             await _context.SaveChangesAsync();
 
             // TODO: Envoyer un message aux clients pour les mettre à jour
-            await Clients.All.SendAsync("createChannel", await _context.Channel.ToListAsync());
+            await Clients.All.SendAsync("ChannelList", await _context.Channel.ToListAsync());
         }
 
         public async Task DeleteChannel(int channelId)
